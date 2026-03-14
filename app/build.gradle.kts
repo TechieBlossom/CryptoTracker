@@ -41,9 +41,23 @@ android {
     }
 }
 
+kotlin {
+    compilerOptions {
+        freeCompilerArgs.add("-Xannotation-default-target=param-property")
+    }
+}
+
+tasks.withType<Test> {
+    testLogging {
+        events("passed", "failed", "skipped")
+        showStandardStreams = true
+    }
+}
+
 dependencies {
     implementation(libs.androidx.core.ktx)
     implementation(libs.androidx.lifecycle.runtime.ktx)
+    implementation(libs.androidx.lifecycle.runtime.compose)
     implementation(libs.androidx.activity.compose)
     implementation(platform(libs.androidx.compose.bom))
     implementation(libs.androidx.compose.ui)
@@ -59,12 +73,14 @@ dependencies {
     // Network
     implementation(libs.retrofit)
     implementation(libs.retrofit.moshi)
-    implementation(libs.moshi.kotlin)
+    implementation(libs.moshi)
+    ksp(libs.moshi.codegen)
     implementation(libs.okhttp.logging)
 
     implementation(libs.coroutines.android)
 
     testImplementation(libs.junit)
+    testImplementation(libs.coroutines.test)
 
     androidTestImplementation(libs.androidx.junit)
     androidTestImplementation(libs.androidx.espresso.core)
