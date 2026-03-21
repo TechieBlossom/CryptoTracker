@@ -1,12 +1,16 @@
 package com.techieblossom.cryptotracker.presentation.coinlist
 
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
+import androidx.compose.material3.Button
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Text
+import androidx.compose.material3.pulltorefresh.PullToRefreshBox
 import androidx.compose.runtime.Composable
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
@@ -14,7 +18,11 @@ import com.techieblossom.cryptotracker.domain.model.Coin
 import com.techieblossom.cryptotracker.ui.theme.CryptoTrackerTheme
 
 @Composable
-fun CoinListScreen(uiState: CoinListUiState, modifier: Modifier) {
+fun CoinListScreen(
+    uiState: CoinListUiState,
+    onRetry: () -> Unit,
+    modifier: Modifier = Modifier
+) {
     when (uiState) {
         CoinListUiState.Loading -> {
             CircularProgressIndicator(
@@ -37,7 +45,16 @@ fun CoinListScreen(uiState: CoinListUiState, modifier: Modifier) {
         }
 
         is CoinListUiState.Error -> {
-            Text(uiState.message)
+            Column(
+                modifier = modifier,
+                verticalArrangement = Arrangement.spacedBy(16.dp),
+                horizontalAlignment = Alignment.CenterHorizontally
+            ) {
+                Text(uiState.message)
+                Button(onClick = onRetry) {
+                    Text("Retry")
+                }
+            }
         }
     }
 }
@@ -46,7 +63,7 @@ fun CoinListScreen(uiState: CoinListUiState, modifier: Modifier) {
 @Composable
 private fun CoinListScreen_LoadingPreview() {
     CryptoTrackerTheme {
-        CoinListScreen(uiState = CoinListUiState.Loading, modifier = Modifier)
+        CoinListScreen(uiState = CoinListUiState.Loading, modifier = Modifier, onRetry = {})
     }
 }
 
@@ -78,7 +95,8 @@ private fun CoinListScreen_SuccessPreview() {
                         priceChangePercentage24h = 0.57593,
                     )
                 )
-            ), modifier = Modifier
+            ), modifier = Modifier,
+            onRetry = {}
         )
     }
 }
@@ -87,7 +105,7 @@ private fun CoinListScreen_SuccessPreview() {
 @Composable
 private fun CoinListScreen_ErrorPreview() {
     CryptoTrackerTheme {
-        CoinListScreen(uiState = CoinListUiState.Error("Something went wrong"), modifier = Modifier)
+        CoinListScreen(uiState = CoinListUiState.Error("Something went wrong"), modifier = Modifier, onRetry = {})
     }
 }
 

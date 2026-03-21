@@ -18,19 +18,34 @@ class CoinListViewModel @Inject constructor(
     private val _uiState = MutableStateFlow<CoinListUiState>(CoinListUiState.Loading)
     val uiState = _uiState.asStateFlow()
 
+    private val _pullToRefreshState = MutableStateFlow(false)
+    val pullToRefreshState = _pullToRefreshState.asStateFlow()
+
     init {
         viewModelScope.launch {
-            runCatching {
-                coinRepository.getCoins()
-            }.onSuccess { coins ->
-                _uiState.value = CoinListUiState.Success(coins)
-            }.onFailure { e ->
-                if (e is CancellationException) {
-                    throw e
-                } else {
-                    _uiState.value = CoinListUiState.Error(e.message ?: "Unknown error")
-                }
+            fetchCoins()
+        }
+    }
+
+    private suspend fun fetchCoins() {
+        runCatching {
+            coinRepository.getCoins()
+        }.onSuccess { coins ->
+            _uiState.value = CoinListUiState.Success(coins)
+        }.onFailure { e ->
+            if (e is CancellationException) {
+                throw e
+            } else {
+                _uiState.value = CoinListUiState.Error(e.message ?: "Unknown error")
             }
+        }
+    }
+
+    fun refresh() {
+        viewModelScope.launch {
+            _pullToRefreshState.value = true
+            fetchCoins()
+            _pullToRefreshState.value = false
         }
     }
 }
