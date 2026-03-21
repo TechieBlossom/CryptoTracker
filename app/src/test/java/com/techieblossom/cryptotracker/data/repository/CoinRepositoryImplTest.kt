@@ -2,6 +2,7 @@ package com.techieblossom.cryptotracker.data.repository
 
 import com.techieblossom.cryptotracker.data.remote.FakeCoinGeckoApi
 import com.techieblossom.cryptotracker.data.remote.dto.CoinDto
+import com.techieblossom.cryptotracker.fakeCoinDto
 import junit.framework.TestCase.assertEquals
 import kotlinx.coroutines.test.runTest
 import org.junit.Before
@@ -27,7 +28,10 @@ class CoinRepositoryImplTest {
 
     @Test
     fun `getCoins returns mapped domain models`() = runTest {
-        fakeCoinGeckoApi.coins = _fakeCoins
+        fakeCoinGeckoApi.coins = listOf(
+            fakeCoinDto(),
+            fakeCoinDto(name = "Ethereum")
+        )
 
         val coins = repository.getCoins()
         assertEquals(2, coins.size)
@@ -47,26 +51,3 @@ class CoinRepositoryImplTest {
         }
     }
 }
-
-private val _fakeCoins = listOf(
-    CoinDto(
-        id = "bitcoin",
-        symbol = "btc",
-        name = "Bitcoin",
-        image = "https://coin-images.coingecko.com/coins/images/1/large/bitcoin.png?1696501400",
-        currentPrice = 70712.0,
-        marketCap = 1414832995358,
-        marketCapRank = 1,
-        priceChangePercentage24h = -0.68272,
-    ),
-    CoinDto(
-        id = "ethereum",
-        symbol = "eth",
-        name = "Ethereum",
-        image = "https://coin-images.coingecko.com/coins/images/279/large/ethereum.png?1696501400",
-        currentPrice = 4500.0,
-        marketCap = 480788543,
-        marketCapRank = 2,
-        priceChangePercentage24h = 0.57593,
-    )
-)
