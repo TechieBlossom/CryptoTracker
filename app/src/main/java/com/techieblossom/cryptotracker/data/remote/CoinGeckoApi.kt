@@ -10,7 +10,7 @@ interface CoinGeckoApi {
     suspend fun getCoins(
         @Query("vs_currency") currency: String = "usd",
         @Query("order") order: String = CoinSortOrder.MARKET_CAP_DESC.value,
-        @Query("per_page") perPage: Int = 5,
+        @Query("per_page") perPage: Int = 20,
         @Query("page") page: Int = 1,
     ): List<CoinDto>
 }
