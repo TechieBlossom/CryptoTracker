@@ -79,6 +79,9 @@ dependencies {
 
     implementation(libs.coroutines.android)
 
+    implementation(libs.coil.compose)
+    implementation(libs.coil.network)
+
     testImplementation(libs.junit)
     testImplementation(libs.coroutines.test)
 
