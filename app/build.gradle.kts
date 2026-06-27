@@ -1,27 +1,13 @@
 plugins {
-    alias(libs.plugins.android.application)
-    alias(libs.plugins.kotlin.compose)
-    alias(libs.plugins.ksp)
-    alias(libs.plugins.hilt)
+    alias(libs.plugins.cryptotracker.android.application)
+    alias(libs.plugins.cryptotracker.android.application.compose)
+    alias(libs.plugins.cryptotracker.android.hilt)
+    // MainActivity's NavHost references the features' @Serializable routes.
+    alias(libs.plugins.kotlin.serialization)
 }
 
 android {
     namespace = "com.techieblossom.cryptotracker"
-    compileSdk {
-        version = release(36) {
-            minorApiLevel = 1
-        }
-    }
-
-    defaultConfig {
-        applicationId = "com.techieblossom.cryptotracker"
-        minSdk = 26
-        targetSdk = 36
-        versionCode = 1
-        versionName = "1.0"
-
-        testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
-    }
 
     buildTypes {
         release {
@@ -32,66 +18,38 @@ android {
             )
         }
     }
-    compileOptions {
-        sourceCompatibility = JavaVersion.VERSION_11
-        targetCompatibility = JavaVersion.VERSION_11
-    }
-    buildFeatures {
-        compose = true
-    }
-}
-
-kotlin {
-    compilerOptions {
-        freeCompilerArgs.add("-Xannotation-default-target=param-property")
-    }
-}
-
-tasks.withType<Test> {
-    testLogging {
-        events("passed", "failed", "skipped")
-        showStandardStreams = true
-    }
 }
 
 dependencies {
+    // Feature modules wired into the NavHost + the shared design system.
+    implementation(projects.feature.coinlist)
+    implementation(projects.feature.coindetail)
+    implementation(projects.core.designsystem)
+    // app's nav callback (onCoinClick) handles the domain Coin type, which the features
+    // expose only via `implementation` — so app needs core:domain on its own classpath.
+    implementation(projects.core.domain)
+    // The composition root: app must depend on the IMPLEMENTATION modules so their Hilt
+    // @Modules (RepositoryModule/DataModule/NetworkModule) are on the SingletonComponent's
+    // graph. Features depend only on core:domain (the interface), never on core:data — so
+    // the concrete CoinRepository binding is wired here, at the app, not in the features.
+    implementation(projects.core.data)
+    implementation(projects.core.network)
+
+    // App-level UI/navigation/DI glue.
     implementation(libs.androidx.core.ktx)
     implementation(libs.androidx.lifecycle.runtime.ktx)
     implementation(libs.androidx.lifecycle.runtime.compose)
     implementation(libs.androidx.activity.compose)
-    implementation(platform(libs.androidx.compose.bom))
-    implementation(libs.androidx.compose.ui)
-    implementation(libs.androidx.compose.ui.graphics)
-    implementation(libs.androidx.compose.ui.tooling.preview)
     implementation(libs.androidx.compose.material3)
-
-    // DI
-    implementation(libs.hilt.android)
-    ksp(libs.hilt.compiler)
+    implementation(libs.kotlinx.serialization.json)
+    implementation(libs.navigation.compose)
     implementation(libs.hilt.navigation.compose)
 
-    // Network
-    implementation(libs.retrofit)
-    implementation(libs.retrofit.moshi)
-    implementation(libs.moshi)
-    ksp(libs.moshi.codegen)
-    implementation(libs.okhttp.logging)
-
-    implementation(libs.coroutines.android)
-
-    implementation(libs.coil.compose)
-    implementation(libs.coil.network)
-
     testImplementation(libs.junit)
-    testImplementation(libs.coroutines.test)
-
-    testImplementation(libs.turbine)
-
     androidTestImplementation(libs.androidx.junit)
     androidTestImplementation(libs.androidx.espresso.core)
     androidTestImplementation(platform(libs.androidx.compose.bom))
     androidTestImplementation(libs.androidx.compose.ui.test.junit4)
 
-    debugImplementation(libs.androidx.compose.ui.tooling)
     debugImplementation(libs.androidx.compose.ui.test.manifest)
 }

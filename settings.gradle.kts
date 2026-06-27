@@ -1,4 +1,6 @@
 pluginManagement {
+    // Compile + contribute our convention plugins (cryptotracker.*) from the build-logic build.
+    includeBuild("build-logic")
     repositories {
         google()
         mavenCentral()
@@ -16,5 +18,14 @@ dependencyResolutionManagement {
     }
 }
 
+// Lets modules reference each other as projects.core.domain instead of project(":core:domain").
+enableFeaturePreview("TYPESAFE_PROJECT_ACCESSORS")
+
 rootProject.name = "CryptoTracker"
 include(":app")
+include(":core:domain")
+include(":core:network")
+include(":core:data")
+include(":core:designsystem")
+include(":feature:coinlist")
+include(":feature:coindetail")
